@@ -1,0 +1,22 @@
+version: '3'
+services:
+  auth-service:
+    build:
+      context: ./Auth
+    ports:
+      - "3001:3001"
+  product-service:
+    build:
+      context: ./Product
+    ports:
+      - "3002:3002"
+  review-service:
+    build:
+      context: ./Review
+    ports:
+      - "3000:3000"
+  shop-service:
+    build:
+      context: ./Shop
+    ports:
+      - "3003:3003"
