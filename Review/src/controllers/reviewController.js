@@ -9,12 +9,12 @@ exports.createReview = async (req, response) => {
 
   // Check if the user with the provided email exists
   axios
-    .get(`http://localhost:8080/http-auth/user/verify/${userEmail}`)
+    .get(`http://localhost:3001/user/verify/${userEmail}`)
     .then((res) => {
       const { success } = res.data;
       if (success === 1) {
         axios
-          .get(`http://localhost:8080/http-product/game/verify/${gameid}`)
+          .get(`http://localhost:3002/game/verify/${gameid}`)
           .then(async (res) => {
             const { success } = res.data;
             if (success === 1) {
@@ -48,7 +48,7 @@ exports.getReview = async (req, response) => {
     const gameid = req.params.gameid;
 
     axios
-      .get(`http://localhost:8080/http-product/game/verify/${gameid}`)
+      .get(`http://localhost:3002/game/verify/${gameid}`)
       .then(async (res) => {
         const { success } = res.data;
         if (success === 1) {
