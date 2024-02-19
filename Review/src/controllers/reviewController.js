@@ -110,7 +110,7 @@ exports.deleteReview = async (req, res) => {
     const reviewId = req.params.reviewId;
 
     const deletedReview = await Review.findByIdAndDelete(reviewId);
-    if (!deletedGame) {
+    if (!deletedReview) {
       return res.status(404).json({ message: "Review not found" });
     }
     res.status(200).json({ message: "Review deleted successfully" });
@@ -119,3 +119,4 @@ exports.deleteReview = async (req, res) => {
     res.status(500).send("Internal server error");
   }
 };
+

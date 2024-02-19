@@ -1,6 +1,8 @@
+const mongoose = require("mongoose");
+
 const Shop = mongoose.model("Shop", {
   gameid: String,
-  userid: String,
+  userEmail: String,
   data: Date,
 });
 

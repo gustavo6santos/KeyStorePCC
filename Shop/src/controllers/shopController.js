@@ -1,8 +1,86 @@
 require("dotenv").config();
 const mongoose = require("mongoose");
-
+const axios = require("axios");
 const Shop = require("../models/shopModel");
 
+
+exports.addPurchase = async (req, response) => {
+  const { gameid, userEmail, data } = req.body;
+
+  // Check if the user with the provided email exists
+  axios
+    .get(`http://localhost:3001/user/verify/${userEmail}`)
+    .then((res) => {
+      const { success } = res.data;
+      if (success === 1) {
+        axios
+          .get(`http://localhost:3002/game/verify/${gameid}`)
+          .then(async (res) => {
+            const { success } = res.data;
+            if (success === 1) {
+              // Create the purchase with the game name
+              const shop = new Shop({ gameid, userEmail, data });
+              try {
+                await Shop.save();
+                return response.status(201).json(shop);
+              } catch (error) {
+                console.error(error);
+                return response.status(500).send("Internal server error");
+              }
+            } else {
+              return response.status(404).send("Game not found");
+            }
+          })
+          .catch((error) => {
+            return response.status(500).send({ error: error, message: error.message });
+          });
+      } else {
+        return response.status(404).send("User not found");
+      }
+    })
+    .catch((error) => {
+      return response.status(500).send({ error: error, message: error.message });
+    });
+};
+
+//get a purchase 
+exports.getPurchase = async (req, res) => {
+  try {
+    const purchaseId = req.params.id;
+    const shop = await Game.findById(purchaseId);
+    if (!shop) {
+      return res.status(404).json({ message: "Purchase not found" });
+    }
+    res.status(200).json(shop);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+// Function to delete an existing review
+exports.deletePurchase = async (req, res) => {
+  try {
+    const purchaseId = req.params.shopId;
+
+    const shop = await Shop.findByIdAndDelete(purchaseId);
+    if (!deletedPurchase) {
+      return res.status(404).json({ message: "Purchase not found" });
+    }
+    res.status(200).json({ message: "Purchase deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal server error");
+  }
+};
+
+
+
+
+
+
+
+/*
 //add a product to the wishlist
 exports.addProduct = async (req, res) => {
   try {
@@ -124,3 +202,4 @@ exports.deletePurchase = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+*/
