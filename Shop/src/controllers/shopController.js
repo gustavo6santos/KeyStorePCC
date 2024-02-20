@@ -21,7 +21,7 @@ exports.addPurchase = async (req, response) => {
               // Create the purchase with the game name
               const shop = new Shop({ gameid, userEmail, data });
               try {
-                await Shop.save();
+                await shop.save();
                 return response.status(201).json(shop);
               } catch (error) {
                 console.error(error);
@@ -44,27 +44,47 @@ exports.addPurchase = async (req, response) => {
 };
 
 //get a purchase 
-exports.getPurchase = async (req, res) => {
+exports.getPurchase = async (req, response) => {
   try {
-    const purchaseId = req.params.id;
-    const shop = await Game.findById(purchaseId);
-    if (!shop) {
-      return res.status(404).json({ message: "Purchase not found" });
-    }
-    res.status(200).json(shop);
+    const userEmail = req.params.userEmail;
+
+    axios
+      .get(`http://localhost:3001/user/verify/${userEmail}`)
+      .then(async (res) => {
+        const { success } = res.data;
+        if (success === 1) {
+          try {
+            const shop = await Shop.find({ userEmail: userEmail });
+
+            if (!shop) {
+              return response.status(404).send({ success: 0, message: "Don't have purchases!" });
+            }
+
+            return response.status(200).json(shop);
+          } catch (error) {
+            console.error(error);
+            return response.status(500).send("Internal server error");
+          }
+        } else {
+          return response.status(404).send("Purchse not found");
+        }
+      })
+      .catch((error) => {
+        return response.status(500).send({ error: error, message: error.message });
+      });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal Server Error" });
+    response.status(500).send("Internal server error");
   }
 };
 
 // Function to delete an existing review
 exports.deletePurchase = async (req, res) => {
   try {
-    const purchaseId = req.params.shopId;
+    const purchaseId = req.params.purchaseId;
 
-    const shop = await Shop.findByIdAndDelete(purchaseId);
-    if (!deletedPurchase) {
+    const deletePurchase = await Shop.findByIdAndDelete(purchaseId);
+    if (!deletePurchase) {
       return res.status(404).json({ message: "Purchase not found" });
     }
     res.status(200).json({ message: "Purchase deleted successfully" });

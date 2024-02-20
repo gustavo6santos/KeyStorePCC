@@ -8,9 +8,9 @@ const shopController = require("../controllers/shopController");
 router.post("/shop/add", shopController.addPurchase);
 
 //Route to get a purchase by id
-router.get("/shop/:purchaseId", shopController.getPurchase);
+router.get("/shop/:userEmail", shopController.getPurchase);
 
 // Route to delete an existing purchase
-router.delete("/shop/delete/:gameid", shopController.deletePurchase);
+router.delete("/shop/delete/:purchaseId", shopController.deletePurchase);
 
 module.exports = router;
