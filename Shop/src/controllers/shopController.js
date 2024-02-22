@@ -2,25 +2,155 @@ require("dotenv").config();
 const mongoose = require("mongoose");
 const axios = require("axios");
 const Shop = require("../models/shopModel");
+const crypto = require('crypto');
+const User = require("../../../Auth/src/models/userModel");
+
+/*
+exports.addPurchase = async (req, response) => {
+
+  const { gameid, userEmail, data } = req.body;
+
+
+  // Check if the user with the provided email exists
+
+  axios
+
+    .get(`http://localhost:3001/user/verify/${userEmail}`)
+
+    .then((res) => {
+
+      const { success } = res.data;
+
+      if (success === 1) {
+
+        axios
+
+          .get(`http://localhost:3002/game/verify/${gameid}`)
+
+          .then( (res) => {
+
+            const { success } = res.data;
+
+            if (success === 1) {
+
+              // Find the user with the provided email
+
+              axios
+
+                .get(`http://localhost:3001/user/verify/${userEmail}`)
+
+                .then( async (res) => {
+
+                  const { success, user } = res.data;
+
+                  if (success === 1) {
+
+                    // Create the purchase with the game name
+
+                    const shop = new Shop({ gameid, userEmail, data });
+
+                    try {
+
+                      // Save the purchase in the shop database
+
+                      const savedShop = await shop.save();
+
+
+                      // Add the purchase to the user's purchases array
+
+                      user.compras.push({ gameid, data });
+                      
+
+                      const updatedUser = await user.save();
+
+
+                      return response.status(201).json({ shop: savedShop, user: updatedUser });
+
+                    } catch (error) {
+
+                      console.error(error);
+
+                      return response.status(500).send("Internal server error");
+
+                    }
+
+                  } else {
+
+                    return response.status(404).send("User not found");
+
+                  }
+
+                })
+
+                .catch((error) => {
+
+                  return response.status(500).send({ error: error, message: error.message });
+
+                });
+
+            } else {
+
+              return response.status(404).send("Game not found");
+
+            }
+
+          })
+
+          .catch((error) => {
+
+            return response.status(500).send({ error: error, message: error.message });
+
+          });
+
+      } else {
+
+        return response.status(404).send("User not found");
+
+      }
+
+    })
+
+    .catch((error) => {
+
+      return response.status(500).send({ error: error, message: error.message });
+
+    });
+
+};
+*/
+
+
 
 
 exports.addPurchase = async (req, response) => {
   const { gameid, userEmail, data } = req.body;
 
   // Check if the user with the provided email exists
+
   axios
     .get(`http://localhost:3001/user/verify/${userEmail}`)
-    .then((res) => {
+    .then(async (res) => {
       const { success } = res.data;
       if (success === 1) {
         axios
+
           .get(`http://localhost:3002/game/verify/${gameid}`)
+
           .then(async (res) => {
             const { success } = res.data;
             if (success === 1) {
+              // Generate a random game key
+              const game_key = crypto
+
+                .randomBytes(8)
+                .toString('hex')
+                .match(/.{1,4}/g)
+                .join('-')
+                .toUpperCase();
               // Create the purchase with the game name
-              const shop = new Shop({ gameid, userEmail, data });
+              const shop = new Shop({ gameid, userEmail, data, game_key });
               try {
+
                 await shop.save();
                 return response.status(201).json(shop);
               } catch (error) {
@@ -31,16 +161,27 @@ exports.addPurchase = async (req, response) => {
               return response.status(404).send("Game not found");
             }
           })
+
           .catch((error) => {
+
             return response.status(500).send({ error: error, message: error.message });
+
           });
+
       } else {
+
         return response.status(404).send("User not found");
+
       }
+
     })
+
     .catch((error) => {
+
       return response.status(500).send({ error: error, message: error.message });
+
     });
+
 };
 
 //get a purchase 
