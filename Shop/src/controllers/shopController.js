@@ -3,7 +3,6 @@ const mongoose = require("mongoose");
 const axios = require("axios");
 const Shop = require("../models/shopModel");
 const crypto = require('crypto');
-const User = require("../../../Auth/src/models/userModel");
 
 /*
 exports.addPurchase = async (req, response) => {
@@ -161,28 +160,18 @@ exports.addPurchase = async (req, response) => {
               return response.status(404).send("Game not found");
             }
           })
-
           .catch((error) => {
-
             return response.status(500).send({ error: error, message: error.message });
-
           });
-
       } else {
-
         return response.status(404).send("User not found");
-
       }
-
     })
-
     .catch((error) => {
-
       return response.status(500).send({ error: error, message: error.message });
-
     });
-
 };
+
 
 //get a purchase 
 exports.getPurchase = async (req, response) => {
