@@ -122,54 +122,58 @@ exports.addPurchase = async (req, response) => {
 
 
 exports.addPurchase = async (req, response) => {
+
   const { gameid, userEmail, data } = req.body;
 
   // Check if the user with the provided email exists
 
-  axios
-    .get(`http://localhost:3001/user/verify/${userEmail}`)
-    .then(async (res) => {
-      const { success } = res.data;
+  try {
+    const userRes = await axios.get(`http://localhost:3001/user/verify/${userEmail}`);
+    const { success } = userRes.data;
+
+    if (success === 1) {
+
+      const gameRes = await axios.get(`http://localhost:3002/game/verify/${gameid}`);
+      const { success } = gameRes.data;
+
       if (success === 1) {
-        axios
 
-          .get(`http://localhost:3002/game/verify/${gameid}`)
+        // Generate a random game key
+        const game_key = crypto
 
-          .then(async (res) => {
-            const { success } = res.data;
-            if (success === 1) {
-              // Generate a random game key
-              const game_key = crypto
+          .randomBytes(8)
+          .toString('hex')
+          .match(/.{1,4}/g)
+          .join('-')
+          .toUpperCase();
 
-                .randomBytes(8)
-                .toString('hex')
-                .match(/.{1,4}/g)
-                .join('-')
-                .toUpperCase();
-              // Create the purchase with the game name
-              const shop = new Shop({ gameid, userEmail, data, game_key });
-              try {
+        // Create the purchase with the game name
+        const shop = new Shop({ gameid, userEmail, data, game_key });
 
-                await shop.save();
-                return response.status(201).json(shop);
-              } catch (error) {
-                console.error(error);
-                return response.status(500).send("Internal server error");
-              }
-            } else {
-              return response.status(404).send("Game not found");
-            }
-          })
-          .catch((error) => {
-            return response.status(500).send({ error: error, message: error.message });
-          });
+        try {
+          await shop.save();
+
+          order_id = req.params.id;
+          // Call the auth service to add the orderid to the user
+          await axios.post(`http://localhost:3001/user/addOrderId`, { userEmail, order_id: shop.order_id });
+          return response.status(201).json(shop);
+
+        } catch (error) {
+          console.error(error);
+          return response.status(500).send("Internal server error");
+        }
+
       } else {
-        return response.status(404).send("User not found");
+
+        return response.status(404).send("Game not found");
       }
-    })
-    .catch((error) => {
-      return response.status(500).send({ error: error, message: error.message });
-    });
+
+    } else {
+      return response.status(404).send("User not found");
+    }
+  } catch (error) {
+    return response.status(500).send({ error: error, message: error.message });
+  }
 };
 
 
