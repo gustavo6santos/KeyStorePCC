@@ -128,12 +128,12 @@ exports.addPurchase = async (req, response) => {
   // Check if the user with the provided email exists
 
   try {
-    const userRes = await axios.get(`http://localhost:3001/user/verify/${userEmail}`);
+    const userRes = await axios.get(`http://auth-service:3001/user/verify/${userEmail}`);
     const { success } = userRes.data;
 
     if (success === 1) {
 
-      const gameRes = await axios.get(`http://localhost:3002/game/verify/${gameid}`);
+      const gameRes = await axios.get(`http://product-service:3002/game/verify/${gameid}`);
       const { success } = gameRes.data;
 
       if (success === 1) {
@@ -161,7 +161,7 @@ exports.addPurchase = async (req, response) => {
           //Para quando realizada uma compra ele guarde o order_id
           //O erro que dá é que supostamente ele não consegue encontrar o user, como este post tem 2 entradas não sei ao certo
           //se a outra função também está corrreta. Tanto é que eu tiro o userEmail e ele não dá erro, embora não faça nada, portanto o erro está à volta do userEmail
-          await axios.post(`http://localhost:3001/user/addOrderId`, { userEmail, order_id});
+          //await axios.post(`http://localhost:3001/user/addOrderId`, { userEmail, order_id});
           
           
           return response.status(201).json(shop);
@@ -191,7 +191,7 @@ exports.getPurchase = async (req, response) => {
     const userEmail = req.params.userEmail;
 
     axios
-      .get(`http://localhost:3001/user/verify/${userEmail}`)
+      .get(`http://auth-service:3001/user/verify/${userEmail}`)
       .then(async (res) => {
         const { success } = res.data;
         if (success === 1) {
