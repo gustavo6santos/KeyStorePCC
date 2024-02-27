@@ -156,11 +156,6 @@ exports.addPurchase = async (req, response) => {
           order_id = req.params.id;
           // Call the auth service to add the orderid to the user
 
-          //venho por este meio informar que é esta linha que está a foder tudo
-          //Basicamente estou a ir buscar a função de addOrderId defenida no serviço de Auth
-          //Para quando realizada uma compra ele guarde o order_id
-          //O erro que dá é que supostamente ele não consegue encontrar o user, como este post tem 2 entradas não sei ao certo
-          //se a outra função também está corrreta. Tanto é que eu tiro o userEmail e ele não dá erro, embora não faça nada, portanto o erro está à volta do userEmail
           //await axios.post(`http://localhost:3001/user/addOrderId`, { userEmail, order_id});
           
           
